@@ -1,23 +1,47 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import localforage from "localforage";
+import { useState } from "react";
+import { cloneElement } from "react";
+import { useEffect } from "react";
+import { createContext } from "react";
+import ReadData from "./components/readData";
 
+export const DataContext = createContext();
 function App() {
+  const [data, setData] = useState([]);
+
+  function createData() {
+    localforage.setItem(
+      "my_data",
+      ["Anurag", "Vishal", "Kabir", "Rahul", "Alok"],
+      function (err, value) {
+        if (err) console.log(err);
+        else console.log(value);
+      }
+    );
+  }
+
+  function readData() {
+    localforage.getItem("my_data", function (err, value) {
+      if (value) {
+        setData(value);
+      } else {
+        console.log(err);
+      }
+    });
+  }
+
+  useEffect(() => {
+    readData();
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Local Forage Crud Application</h1>
+      <p>Local Forage Data</p>
+      <DataContext.Provider value={data}>
+        <ReadData />
+      </DataContext.Provider>
     </div>
   );
 }
